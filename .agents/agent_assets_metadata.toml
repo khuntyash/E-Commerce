@@ -24,3 +24,9 @@ id = "67St9JRTheg9F3FGHlabp"
 uri = "file://artifacts/zero-ecommerce/src/assets/fraud-shield.png"
 type = "image"
 title = "generated_image"
+
+[[generated]]
+id = "b-suzF_B0C3RjyaDi4oMk"
+uri = "file://artifacts/zero-ecommerce/src/assets/inventory-ai-card.png"
+type = "image"
+title = "generated_image"

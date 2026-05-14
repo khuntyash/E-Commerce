@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Scissors, TrendingUp, ShieldAlert, RefreshCw, BarChart3, Zap, Package, Bot } from "lucide-react";
 import analyticsImg from "@/assets/analytics-visual.png";
 import fraudImg from "@/assets/fraud-shield.png";
+import inventoryAiImg from "@/assets/inventory-ai-card.png";
 
 const container = {
   hidden: {},
@@ -17,7 +18,6 @@ const tools = [
   { icon: TrendingUp, title: "P&L Analytics", desc: "Real-time profit tracking per product, channel, and SKU.", col: "", accent: "#8B5CF6" },
   { icon: ShieldAlert, title: "Fraud Detection", desc: "AI-powered suspicious buyer alerts before you ship.", col: "", accent: "#EF4444" },
   { icon: RefreshCw, title: "Multi-Platform Sync", desc: "Amazon, Shopify, Meesho — one unified command center.", col: "md:col-span-2", accent: "#06B6D4" },
-  { icon: Package, title: "Inventory AI", desc: "Predictive reorder alerts based on sales velocity.", col: "", accent: "#10B981" },
   { icon: Bot, title: "Seller Automation", desc: "Build no-code workflows that run your business on autopilot.", col: "", accent: "#F59E0B" },
 ];
 
@@ -62,6 +62,21 @@ export default function Products() {
               <p className="text-muted-foreground text-sm leading-relaxed">{tool.desc}</p>
             </motion.div>
           ))}
+
+          <motion.div
+            variants={item}
+            className="group bg-white rounded-3xl border border-border/60 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+            style={{ willChange: "transform" }}
+          >
+            <img src={inventoryAiImg} alt="Inventory AI" className="w-full h-48 object-cover object-center" />
+            <div className="p-7">
+              <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-4" style={{ background: "#10B98115" }}>
+                <Package className="w-5 h-5 text-[#10B981]" />
+              </div>
+              <h3 className="text-lg font-bold mb-2">Inventory AI</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">Predictive reorder alerts and stock velocity tracking so you never miss a sale.</p>
+            </div>
+          </motion.div>
 
           <motion.div
             variants={item}
