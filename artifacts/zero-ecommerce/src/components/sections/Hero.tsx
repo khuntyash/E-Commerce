@@ -1,115 +1,95 @@
 import { motion } from "framer-motion";
 import MagneticButton from "@/components/ui/MagneticButton";
-import { Play } from "lucide-react";
+import { Play, ArrowRight } from "lucide-react";
 import AmbientBackground from "@/components/three/AmbientBackground";
+import heroDashboard from "@/assets/hero-dashboard.png";
+
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 24 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] },
+});
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen w-full flex items-center justify-center overflow-hidden pt-20 pb-20">
-      <div className="absolute inset-0 z-0 aurora-bg opacity-30"></div>
+    <section className="relative min-h-screen w-full flex items-center justify-center overflow-hidden pt-24 pb-16">
       <AmbientBackground />
-      
+      <div className="absolute inset-0 z-0 aurora-bg opacity-20" />
+
       <div className="container mx-auto px-6 relative z-10 flex flex-col items-center text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-6 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand-blue/30 bg-brand-blue/5 text-brand-blue text-sm font-medium"
-        >
-          <span className="w-2 h-2 rounded-full bg-brand-blue animate-pulse-glow"></span>
+
+        <motion.div {...fadeUp(0)} className="mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#3B82F6]/30 bg-[#3B82F6]/5 text-[#3B82F6] text-sm font-semibold">
+          <span className="w-2 h-2 rounded-full bg-[#3B82F6]" style={{ animation: "pulse-glow 2s ease-in-out infinite" }} />
           Now with AI-powered Insights
+          <ArrowRight className="w-3.5 h-3.5" />
         </motion.div>
-        
+
         <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-5xl md:text-7xl lg:text-[80px] font-extrabold tracking-tight text-foreground leading-[1.1] max-w-4xl mb-6"
+          {...fadeUp(0.08)}
+          className="text-5xl md:text-7xl lg:text-[82px] font-black tracking-tight text-foreground leading-[1.05] max-w-4xl mb-6"
+          style={{ letterSpacing: "-0.03em" }}
         >
-          Powering the Future<br />of E-Commerce Sellers
+          Powering the{" "}
+          <span className="gradient-text">Future</span>
+          <br />of E-Commerce Sellers
         </motion.h1>
-        
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-10"
-        >
+
+        <motion.p {...fadeUp(0.14)} className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-10 leading-relaxed">
           AI-powered tools for smarter operations, automation, analytics, and growth across every marketplace.
         </motion.p>
-        
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="flex flex-col sm:flex-row items-center gap-4 mb-16"
-        >
-          <MagneticButton className="bg-brand-blue text-white rounded-full hover:bg-brand-blue/90 w-full sm:w-auto" data-testid="button-hero-start">
+
+        <motion.div {...fadeUp(0.2)} className="flex flex-col sm:flex-row items-center gap-4 mb-12">
+          <MagneticButton
+            className="rounded-full font-semibold px-8 py-3.5 text-base text-white"
+            style={{ background: "linear-gradient(135deg, #3B82F6, #8B5CF6)" }}
+          >
             Start Free Trial
           </MagneticButton>
-          <button className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full border border-border bg-white text-foreground hover:bg-gray-50 transition-colors w-full sm:w-auto font-medium" data-testid="button-hero-demo">
-            <Play className="w-4 h-4" /> Watch Demo
+          <button className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full border border-border bg-white/80 backdrop-blur-sm text-foreground hover:bg-white hover:shadow-md transition-all duration-200 font-medium text-base">
+            <span className="w-8 h-8 rounded-full bg-[#3B82F6]/10 flex items-center justify-center">
+              <Play className="w-3 h-3 text-[#3B82F6] fill-[#3B82F6]" />
+            </span>
+            Watch Demo
           </button>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="flex flex-col items-center gap-4 text-sm text-muted-foreground"
-        >
-          <p>Trusted by sellers on</p>
-          <div className="flex flex-wrap items-center justify-center gap-4 opacity-70">
+        <motion.div {...fadeUp(0.26)} className="flex flex-col items-center gap-3 mb-14 text-sm text-muted-foreground">
+          <p className="font-medium">Trusted by sellers on</p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
             {["Amazon", "Flipkart", "Meesho", "Shopify", "Myntra"].map((p) => (
-              <span key={p} className="px-4 py-1.5 rounded-full border border-border bg-white/80 text-sm font-semibold text-foreground/70 shadow-sm">
+              <span key={p} className="px-4 py-1.5 rounded-full border border-border bg-white/90 text-xs font-bold text-foreground/60 shadow-sm tracking-wide uppercase">
                 {p}
               </span>
             ))}
           </div>
         </motion.div>
-        
-        {/* Simple Mockup representation for speed */}
+
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.5 }}
-          className="mt-16 w-full max-w-5xl aspect-video glass rounded-2xl border border-white/40 shadow-2xl p-4 overflow-hidden relative animate-float flex flex-col"
+          initial={{ opacity: 0, y: 48, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-5xl relative"
+          style={{ willChange: "transform" }}
         >
-          <div className="w-full h-12 border-b border-border/50 flex items-center px-4 mb-4">
-            <div className="flex gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-400"></div>
-              <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-              <div className="w-3 h-3 rounded-full bg-green-400"></div>
+          <div className="absolute -inset-4 rounded-3xl opacity-30 blur-2xl" style={{ background: "linear-gradient(135deg, #3B82F6, #8B5CF6, #06B6D4)" }} />
+          <div className="relative glass rounded-2xl border border-white/50 shadow-2xl overflow-hidden" style={{ boxShadow: "0 40px 80px -20px rgba(59,130,246,0.25), 0 0 0 1px rgba(255,255,255,0.6)" }}>
+            <div className="flex items-center gap-2 px-5 py-3.5 border-b border-border/40 bg-white/60 backdrop-blur-sm">
+              <div className="w-3 h-3 rounded-full bg-red-400" />
+              <div className="w-3 h-3 rounded-full bg-yellow-400" />
+              <div className="w-3 h-3 rounded-full bg-green-400" />
+              <div className="mx-auto bg-gray-100/80 rounded-md px-5 py-1 text-xs text-gray-500 font-mono">
+                app.zeroecommerce.ai
+              </div>
             </div>
-            <div className="mx-auto bg-gray-100 rounded-md px-4 py-1 text-xs text-gray-500 font-mono">zero-dashboard.app</div>
-          </div>
-          <div className="flex-1 w-full bg-gray-50/50 rounded-xl flex gap-4 p-4">
-             <div className="w-1/4 h-full flex flex-col gap-4">
-                <div className="h-24 bg-white rounded-lg shadow-sm border border-gray-100 p-4 flex flex-col justify-between">
-                  <span className="text-xs text-gray-500 uppercase">Revenue</span>
-                  <span className="text-2xl font-bold">₹12.4L</span>
-                </div>
-                <div className="h-24 bg-white rounded-lg shadow-sm border border-gray-100 p-4 flex flex-col justify-between">
-                  <span className="text-xs text-gray-500 uppercase">Orders Today</span>
-                  <span className="text-2xl font-bold">2,847</span>
-                </div>
-                <div className="h-24 bg-red-50 rounded-lg shadow-sm border border-red-100 p-4 flex flex-col justify-between text-red-700">
-                  <span className="text-xs uppercase">Fraud Alerts</span>
-                  <span className="text-2xl font-bold">3 flagged</span>
-                </div>
-             </div>
-             <div className="flex-1 h-full bg-white rounded-lg shadow-sm border border-gray-100 p-6 flex flex-col">
-                <h3 className="text-lg font-semibold mb-4">Sales Overview</h3>
-                <div className="flex-1 w-full flex items-end gap-2 pb-4">
-                   {[40, 60, 45, 80, 50, 90, 70].map((h, i) => (
-                     <div key={i} className="flex-1 bg-brand-blue/20 rounded-t-sm" style={{ height: `${h}%` }}>
-                       <div className="w-full bg-brand-blue rounded-t-sm" style={{ height: '10%' }}></div>
-                     </div>
-                   ))}
-                </div>
-             </div>
+            <img
+              src={heroDashboard}
+              alt="Zero AI Dashboard"
+              className="w-full h-auto block"
+              style={{ aspectRatio: "16/9", objectFit: "cover" }}
+            />
           </div>
         </motion.div>
+
       </div>
     </section>
   );

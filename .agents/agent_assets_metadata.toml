@@ -1,0 +1,26 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "mS3Hju7S3pDuS7TUL1IiN"
+uri = "file://artifacts/zero-ecommerce/src/assets/hero-dashboard.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "we3p_awU8nKUI1NzwvLIW"
+uri = "file://artifacts/zero-ecommerce/src/assets/inventory-feature.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "gJrRS0hkIAvyKzZ8XVT42"
+uri = "file://artifacts/zero-ecommerce/src/assets/analytics-visual.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "67St9JRTheg9F3FGHlabp"
+uri = "file://artifacts/zero-ecommerce/src/assets/fraud-shield.png"
+type = "image"
+title = "generated_image"
