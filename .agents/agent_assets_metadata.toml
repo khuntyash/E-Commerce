@@ -36,3 +36,9 @@ id = "CnXtn5iIJODrJwYP65AIj"
 uri = "file://artifacts/zero-ecommerce/src/assets/pl-analytics-card.png"
 type = "image"
 title = "generated_image"
+
+[[generated]]
+id = "PbqEL1prKmSnJefJmNQlZ"
+uri = "file://artifacts/zero-ecommerce/src/assets/label-cropper-card.png"
+type = "image"
+title = "generated_image"

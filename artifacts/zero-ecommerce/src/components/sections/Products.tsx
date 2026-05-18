@@ -4,6 +4,7 @@ import analyticsImg from "@/assets/analytics-visual.png";
 import fraudImg from "@/assets/fraud-shield.png";
 import inventoryAiImg from "@/assets/inventory-ai-card.png";
 import plAnalyticsImg from "@/assets/pl-analytics-card.png";
+import labelCropperImg from "@/assets/label-cropper-card.png";
 
 const container = {
   hidden: {},
@@ -15,7 +16,6 @@ const item = {
 };
 
 const tools = [
-  { icon: Scissors, title: "Smart Label Cropper", desc: "Auto-crop, resize, and format shipping labels for any printer in milliseconds.", col: "md:col-span-2", accent: "#3B82F6" },
   { icon: ShieldAlert, title: "Fraud Detection", desc: "AI-powered suspicious buyer alerts before you ship.", col: "", accent: "#EF4444" },
   { icon: RefreshCw, title: "Multi-Platform Sync", desc: "Amazon, Shopify, Meesho — one unified command center.", col: "md:col-span-2", accent: "#06B6D4" },
   { icon: Bot, title: "Seller Automation", desc: "Build no-code workflows that run your business on autopilot.", col: "", accent: "#F59E0B" },
@@ -62,6 +62,21 @@ export default function Products() {
               <p className="text-muted-foreground text-sm leading-relaxed">{tool.desc}</p>
             </motion.div>
           ))}
+
+          <motion.div
+            variants={item}
+            className="group bg-white rounded-3xl border border-border/60 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 md:col-span-2"
+            style={{ willChange: "transform" }}
+          >
+            <img src={labelCropperImg} alt="Smart Label Cropper" className="w-full h-56 object-cover object-center" />
+            <div className="p-7">
+              <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-4" style={{ background: "#3B82F615" }}>
+                <Scissors className="w-5 h-5 text-[#3B82F6]" />
+              </div>
+              <h3 className="text-lg font-bold mb-2">Smart Label Cropper</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">Auto-crop, resize, and format shipping labels for any printer in milliseconds — zero manual effort.</p>
+            </div>
+          </motion.div>
 
           <motion.div
             variants={item}
