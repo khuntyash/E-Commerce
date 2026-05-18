@@ -20,7 +20,7 @@ export default function Footer() {
               <li><a href="#" className="hover:text-foreground">Smart Label Cropper</a></li>
               <li><a href="#" className="hover:text-foreground">P&L Analytics</a></li>
               <li><a href="#" className="hover:text-foreground">Inventory Management</a></li>
-              <li><a href="#" className="hover:text-foreground">Suspicious Customer Detection</a></li>
+              <li><a href="#" className="hover:text-foreground">Suspicious Order Detection</a></li>
             </ul>
           </div>
           

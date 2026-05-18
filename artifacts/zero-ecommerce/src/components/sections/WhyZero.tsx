@@ -6,7 +6,7 @@ const benefits = [
   { icon: Clock, title: "Save 10+ Hours Weekly", desc: "Eliminate manual data entry, label printing, and report generation.", accent: "#3B82F6" },
   { icon: Workflow, title: "Full Workflow Automation", desc: "From order received to label printed — zero manual steps.", accent: "#8B5CF6" },
   { icon: DollarSign, title: "Maximize Profit Margins", desc: "Real-time P&L visibility across every product and channel.", accent: "#10B981" },
-  { icon: ShieldCheck, title: "Detect Suspicious Customers", desc: "AI flags suspicious buyers before they cost you money.", accent: "#EF4444" },
+  { icon: ShieldCheck, title: "Detect Suspicious Orders", desc: "AI flags suspicious orders before they cost you money.", accent: "#EF4444" },
   { icon: AlertTriangle, title: "Never Stockout Again", desc: "Smart reorder alerts based on sales velocity and trends.", accent: "#F59E0B" },
   { icon: TrendingUp, title: "Scale Without Limits", desc: "Infrastructure built for 100 to 10 million orders per month.", accent: "#06B6D4" },
 ];

@@ -21,8 +21,8 @@ const features = [
     icon: <Settings className="w-6 h-6" />
   },
   {
-    title: "Suspicious Customer Detection",
-    desc: "Stop bad buyers before you ship. We cross-reference millions of data points to flag customers with suspicious return histories.",
+    title: "Suspicious Order Detection",
+    desc: "Stop bad orders before you ship. We cross-reference millions of data points to flag orders with suspicious return histories.",
     icon: <ShieldAlert className="w-6 h-6" />
   },
   {
