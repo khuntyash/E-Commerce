@@ -8,7 +8,7 @@ export default function Testimonials() {
       role: "Meesho Seller, Tier 1",
       initials: "RK",
       color: "bg-blue-100 text-blue-700",
-      content: "Zero's label cropper alone saves me 3 hours every day. The fraud detection caught 47 suspicious buyers in my first week. My returns dropped 38%."
+      content: "Zero's label cropper alone saves me 3 hours every day. The suspicious customer detection caught 47 bad buyers in my first week. My returns dropped 38%."
     },
     {
       name: "Priya S.",

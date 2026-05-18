@@ -16,7 +16,7 @@ const item = {
 };
 
 const tools = [
-  { icon: ShieldAlert, title: "Fraud Detection", desc: "AI-powered suspicious buyer alerts before you ship.", col: "", accent: "#EF4444" },
+  { icon: ShieldAlert, title: "Suspicious Customer Detection", desc: "AI-powered suspicious buyer alerts before you ship.", col: "", accent: "#EF4444" },
   { icon: RefreshCw, title: "Multi-Platform Sync", desc: "Amazon, Shopify, Meesho — one unified command center.", col: "md:col-span-2", accent: "#06B6D4" },
   { icon: Bot, title: "Seller Automation", desc: "Build no-code workflows that run your business on autopilot.", col: "", accent: "#F59E0B" },
 ];
@@ -133,7 +133,7 @@ export default function Products() {
               <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-4" style={{ background: "#EF444415" }}>
                 <Zap className="w-5 h-5 text-[#EF4444]" />
               </div>
-              <h3 className="text-lg font-bold mb-2">Return Fraud Shield</h3>
+              <h3 className="text-lg font-bold mb-2">Suspicious Customer Shield</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">Block serial returners and bad actors before they cost you money.</p>
             </div>
           </motion.div>
