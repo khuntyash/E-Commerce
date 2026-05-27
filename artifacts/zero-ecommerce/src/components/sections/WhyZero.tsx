@@ -16,7 +16,7 @@ const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transiti
 
 export default function WhyZero() {
   return (
-    <section className="py-28 bg-white overflow-hidden" id="solutions">
+    <section className="py-28 bg-white overflow-hidden scroll-mt-24" id="solutions">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 

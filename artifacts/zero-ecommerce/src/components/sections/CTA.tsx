@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-import MagneticButton from "@/components/ui/MagneticButton";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 export default function CTA() {
   return (
@@ -69,29 +68,10 @@ export default function CTA() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
-          className="text-lg text-white/60 max-w-xl mb-12 leading-relaxed"
+          className="text-lg text-white/60 max-w-xl leading-relaxed"
         >
           Join thousands of top sellers who've automated their operations and unlocked their next level of growth.
         </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6, delay: 0.18, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col sm:flex-row items-center gap-4"
-        >
-          <MagneticButton
-            className="rounded-full font-bold px-8 py-4 text-base text-[#0F172A] flex items-center gap-2"
-            style={{ background: "linear-gradient(135deg, #ffffff, #f0f4ff)" }}
-          >
-            Start Free Trial
-            <ArrowRight className="w-4 h-4" />
-          </MagneticButton>
-          <button className="px-8 py-4 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30 transition-all duration-200 font-semibold text-base backdrop-blur-sm">
-            Talk to Sales
-          </button>
-        </motion.div>
 
         <motion.p
           initial={{ opacity: 0 }}
@@ -100,7 +80,7 @@ export default function CTA() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-8 text-white/30 text-sm"
         >
-          No credit card required · Free 14-day trial · Cancel anytime
+          Built for reliable execution · Fast onboarding · Ongoing support
         </motion.p>
       </div>
     </section>

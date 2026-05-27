@@ -1,7 +1,7 @@
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useMotionValueEvent, AnimatePresence } from "framer-motion";
 import { useRef, useState } from "react";
-import { LineChart, Line, ResponsiveContainer, BarChart, Bar, Cell, Tooltip } from "recharts";
-import { Zap, Package, ShieldAlert, LineChart as ChartIcon, Settings } from "lucide-react";
+import { LineChart, Line, ResponsiveContainer } from "recharts";
+import { Zap, Package, ShieldAlert, LineChart as ChartIcon, Scissors } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const features = [
@@ -16,9 +16,9 @@ const features = [
     icon: <Package className="w-6 h-6" />
   },
   {
-    title: "Seller Automation",
-    desc: "Build custom workflows that run your business on autopilot. From routing orders to specific warehouses to automatically responding to common queries.",
-    icon: <Settings className="w-6 h-6" />
+    title: "Smart Label Cropper",
+    desc: "Use a dedicated label tool to auto-crop and format shipping labels for different printer sizes in seconds.",
+    icon: <Scissors className="w-6 h-6" />
   },
   {
     title: "Suspicious Order Detection",
@@ -26,8 +26,8 @@ const features = [
     icon: <ShieldAlert className="w-6 h-6" />
   },
   {
-    title: "Unified Command Center",
-    desc: "Amazon, Meesho, Flipkart, and Shopify—all your orders, stock, and messages in one beautiful, lightning-fast interface.",
+    title: "Marketplace Sync",
+    desc: "Connect Amazon, Meesho, Flipkart, and Shopify in a separate sync tool to keep orders, stock, and catalog data aligned.",
     icon: <Zap className="w-6 h-6" />
   }
 ];
@@ -52,13 +52,11 @@ export default function ProductShowcase() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   // Derive active index from scroll progress
-  useTransform(scrollYProgress, (pos) => {
+  useMotionValueEvent(scrollYProgress, "change", (pos) => {
     const panels = features.length;
     const rawIndex = Math.floor(pos * panels);
     const index = Math.min(Math.max(rawIndex, 0), panels - 1);
-    if (index !== activeIndex) {
-      setActiveIndex(index);
-    }
+    setActiveIndex((prev) => (prev === index ? prev : index));
   });
 
   return (
@@ -67,7 +65,7 @@ export default function ProductShowcase() {
         <div className="container mx-auto px-6 h-full flex flex-col md:flex-row items-center py-20 gap-12 w-full">
           
           <div className="w-full md:w-1/2 flex flex-col justify-center max-w-xl pr-10">
-            <h2 className="text-3xl md:text-5xl font-bold mb-12">The Intelligent OS<br/>for Sellers</h2>
+            <h2 className="text-3xl md:text-5xl font-bold mb-12">Specialized Tools<br/>for Sellers</h2>
             
             <div className="relative h-64 w-full">
               {features.map((feature, i) => (
@@ -158,11 +156,11 @@ export default function ProductShowcase() {
                   <div className="w-0.5 h-8 bg-gray-200 mx-auto" />
                   <div className="p-4 border border-purple-100 bg-purple-50 rounded-xl flex items-center justify-between">
                      <span className="font-medium">Auto-Crop Label</span>
-                     <Package className="text-purple-500 w-5 h-5" />
+                     <Scissors className="text-purple-500 w-5 h-5" />
                   </div>
                   <div className="w-0.5 h-8 bg-gray-200 mx-auto" />
                   <div className="p-4 border border-green-100 bg-green-50 rounded-xl flex items-center justify-between">
-                     <span className="font-medium">Send to Warehouse B</span>
+                     <span className="font-medium">Ready to Print</span>
                      <Check className="text-green-500 w-5 h-5" />
                   </div>
                 </motion.div>
@@ -205,13 +203,13 @@ export default function ProductShowcase() {
                   transition={{ duration: 0.4 }}
                   className="w-full h-full bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col"
                 >
-                   <h4 className="font-semibold text-lg mb-6">Unified Orders</h4>
+                   <h4 className="font-semibold text-lg mb-6">Marketplace Sync Snapshot</h4>
                    <div className="flex flex-col gap-3 flex-1 overflow-hidden">
                      {[
-                       { p: "Amazon", id: "#AMZ-124", v: "₹1,299", t: "Just now" },
-                       { p: "Meesho", id: "#MEE-892", v: "₹450", t: "2m ago" },
-                       { p: "Shopify", id: "#SHP-001", v: "₹3,499", t: "15m ago" },
-                       { p: "Flipkart", id: "#FLK-554", v: "₹899", t: "1h ago" },
+                       { p: "Amazon", id: "#AMZ-124", status: "Synced", t: "Just now" },
+                       { p: "Meesho", id: "#MEE-892", status: "Synced", t: "2m ago" },
+                       { p: "Shopify", id: "#SHP-001", status: "Pending", t: "15m ago" },
+                       { p: "Flipkart", id: "#FLK-554", status: "Synced", t: "1h ago" },
                      ].map((it, i) => (
                        <div key={i} className="flex items-center justify-between p-3 border-b border-gray-50 last:border-0">
                          <div className="flex items-center gap-3">
@@ -223,7 +221,7 @@ export default function ProductShowcase() {
                              <div className="text-xs text-gray-400">{it.t}</div>
                            </div>
                          </div>
-                         <div className="font-semibold text-sm">{it.v}</div>
+                         <div className="font-semibold text-sm">{it.status}</div>
                        </div>
                      ))}
                    </div>

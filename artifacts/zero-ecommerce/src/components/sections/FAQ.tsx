@@ -31,9 +31,9 @@ export default function FAQ() {
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-3">
-            <AccordionTrigger>Can I try Zero before purchasing?</AccordionTrigger>
+            <AccordionTrigger>How quickly can we get started?</AccordionTrigger>
             <AccordionContent>
-              Yes! Every plan comes with a 14-day free trial, no credit card required. You can explore all features and connect your real marketplace accounts.
+              Most teams start in a few days. We begin with your primary marketplaces and workflows, then expand setup module by module based on your operations.
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-4">

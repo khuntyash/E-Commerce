@@ -24,13 +24,14 @@ export default function CursorGlow() {
 
   return (
     <motion.div
-      className="fixed top-0 left-0 w-[300px] h-[300px] rounded-full pointer-events-none z-[9999] mix-blend-screen hidden lg:block"
+      className="fixed top-0 left-0 w-[220px] h-[220px] rounded-full pointer-events-none z-40 hidden xl:block"
       style={{
         translateX: cursorXSpring,
         translateY: cursorYSpring,
         x: "-50%",
         y: "-50%",
-        background: "radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(139,92,246,0.15) 50%, rgba(0,0,0,0) 70%)"
+        background:
+          "radial-gradient(circle, rgba(59,130,246,0.10) 0%, rgba(139,92,246,0.10) 50%, rgba(0,0,0,0) 70%)",
       }}
     />
   );

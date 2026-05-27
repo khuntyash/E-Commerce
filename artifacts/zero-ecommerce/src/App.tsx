@@ -4,8 +4,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
-import Lenis from 'lenis';
-import { useEffect } from 'react';
+import Lenis from "lenis";
+import { useEffect } from "react";
+import { registerLenis, unregisterLenis } from "@/lib/scroll";
 
 const queryClient = new QueryClient();
 
@@ -20,10 +21,23 @@ function Router() {
 
 function App() {
   useEffect(() => {
-    const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
-    function raf(time: number) { lenis.raf(time); requestAnimationFrame(raf); }
-    requestAnimationFrame(raf);
-    return () => lenis.destroy();
+    const lenis = new Lenis({
+      duration: 0.85,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      anchors: { offset: -88 },
+    });
+    registerLenis(lenis);
+    let rafId = 0;
+    function raf(time: number) {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    }
+    rafId = requestAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(rafId);
+      unregisterLenis();
+      lenis.destroy();
+    };
   }, []);
 
   return (

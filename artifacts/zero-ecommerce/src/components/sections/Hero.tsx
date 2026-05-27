@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-import MagneticButton from "@/components/ui/MagneticButton";
-import { Play, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import AmbientBackground from "@/components/three/AmbientBackground";
 import heroDashboard from "@/assets/hero-dashboard.png";
 
@@ -35,25 +34,10 @@ export default function Hero() {
         </motion.h1>
 
         <motion.p {...fadeUp(0.14)} className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-10 leading-relaxed">
-          AI-powered tools for smarter operations, automation, analytics, and growth across every marketplace.
+          AI-powered tools for smarter operations, analytics, and growth across every marketplace.
         </motion.p>
 
-        <motion.div {...fadeUp(0.2)} className="flex flex-col sm:flex-row items-center gap-4 mb-12">
-          <MagneticButton
-            className="rounded-full font-semibold px-8 py-3.5 text-base text-white"
-            style={{ background: "linear-gradient(135deg, #3B82F6, #8B5CF6)" }}
-          >
-            Start Free Trial
-          </MagneticButton>
-          <button className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full border border-border bg-white/80 backdrop-blur-sm text-foreground hover:bg-white hover:shadow-md transition-all duration-200 font-medium text-base">
-            <span className="w-8 h-8 rounded-full bg-[#3B82F6]/10 flex items-center justify-center">
-              <Play className="w-3 h-3 text-[#3B82F6] fill-[#3B82F6]" />
-            </span>
-            Watch Demo
-          </button>
-        </motion.div>
-
-        <motion.div {...fadeUp(0.26)} className="flex flex-col items-center gap-3 mb-14 text-sm text-muted-foreground">
+        <motion.div {...fadeUp(0.2)} className="flex flex-col items-center gap-3 mb-14 text-sm text-muted-foreground">
           <p className="font-medium">Trusted by sellers on</p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             {["Amazon", "Flipkart", "Meesho", "Shopify", "Myntra"].map((p) => (

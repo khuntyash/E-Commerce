@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Scissors, TrendingUp, ShieldAlert, RefreshCw, BarChart3, Zap, Package, Bot, RotateCcw, BadgeIndianRupee } from "lucide-react";
+import { Scissors, TrendingUp, ShieldAlert, RefreshCw, BarChart3, Zap, Package, RotateCcw } from "lucide-react";
 import analyticsImg from "@/assets/analytics-visual.png";
 import fraudImg from "@/assets/fraud-shield.png";
 import inventoryAiImg from "@/assets/inventory-ai-card.png";
@@ -17,15 +17,13 @@ const item = {
 
 const tools = [
   { icon: ShieldAlert, title: "Suspicious Order Detection", desc: "AI cross-references millions of data points to flag high-risk orders before they ship — protecting your margins in real time.", col: "", accent: "#EF4444" },
-  { icon: RefreshCw, title: "Multi-Platform Sync", desc: "Amazon, Flipkart, Meesho, Shopify — all your orders, listings, and inventory synced live from one unified command center.", col: "md:col-span-2", accent: "#06B6D4" },
-  { icon: Bot, title: "Seller Automation", desc: "Build no-code workflows that run your business on autopilot — from order routing and label printing to automated buyer responses.", col: "", accent: "#F59E0B" },
+  { icon: RefreshCw, title: "Multi-Platform Sync", desc: "A dedicated sync tool for Amazon, Flipkart, Meesho, and Shopify to keep orders, listings, and inventory updated.", col: "md:col-span-2", accent: "#06B6D4" },
   { icon: RotateCcw, title: "Returns Management", desc: "Automatically process, track, and analyse every return. Spot serial returners early and cut return-related losses by up to 40%.", col: "", accent: "#8B5CF6" },
-  { icon: BadgeIndianRupee, title: "Price Intelligence", desc: "Stay competitive with AI-driven repricing that monitors rivals across all marketplaces and adjusts your prices to maximise sales.", col: "", accent: "#10B981" },
 ];
 
 export default function Products() {
   return (
-    <section className="py-28 bg-brand-gray w-full" id="products">
+    <section className="py-28 bg-brand-gray w-full scroll-mt-24" id="products">
       <div className="container mx-auto px-6">
         <motion.div
           className="text-center max-w-2xl mx-auto mb-16"
@@ -37,7 +35,7 @@ export default function Products() {
           <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4" style={{ letterSpacing: "-0.03em" }}>
             Everything You Need<br />to Sell <span className="gradient-text">Smarter</span>
           </h2>
-          <p className="text-muted-foreground text-lg">One platform. Every tool. Zero friction.</p>
+          <p className="text-muted-foreground text-lg">A suite of specialized tools for every part of your seller workflow.</p>
         </motion.div>
 
         <motion.div
