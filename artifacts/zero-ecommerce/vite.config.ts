@@ -2,7 +2,6 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
-import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
 const rawPort = process.env.PORT;
 
@@ -26,26 +25,14 @@ if (!basePath) {
   );
 }
 
+// Opt-in local dev proxy: when API_PROXY_TARGET is set (local development),
+// forward /api requests to the running API server. Leave unset in deployments
+// where a reverse proxy / gateway already routes /api to the API server.
+const apiProxyTarget = process.env.API_PROXY_TARGET;
+
 export default defineConfig({
   base: basePath,
-  plugins: [
-    react(),
-    tailwindcss(),
-    runtimeErrorOverlay(),
-    ...(process.env.NODE_ENV !== "production" &&
-    process.env.REPL_ID !== undefined
-      ? [
-          await import("@replit/vite-plugin-cartographer").then((m) =>
-            m.cartographer({
-              root: path.resolve(import.meta.dirname, ".."),
-            }),
-          ),
-          await import("@replit/vite-plugin-dev-banner").then((m) =>
-            m.devBanner(),
-          ),
-        ]
-      : []),
-  ],
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "src"),
@@ -66,6 +53,16 @@ export default defineConfig({
     fs: {
       strict: true,
     },
+    ...(apiProxyTarget
+      ? {
+          proxy: {
+            "/api": {
+              target: apiProxyTarget,
+              changeOrigin: true,
+            },
+          },
+        }
+      : {}),
   },
   preview: {
     port,

@@ -1,0 +1,32 @@
+# Netlify deploy config for the static frontend (zero-ecommerce).
+# The site is built from the pnpm monorepo; /api/* is proxied to the Render API
+# so the browser always talks to the same origin (no CORS).
+
+[build]
+  # Build only the frontend package out of the workspace.
+  command = "corepack enable && corepack prepare pnpm@11.8.0 --activate && pnpm install --frozen-lockfile && pnpm --filter @workspace/zero-ecommerce build"
+  publish = "artifacts/zero-ecommerce/dist/public"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NODE_ENV = "production"
+  # vite.config.ts requires these to be present at build time.
+  PORT = "8080"
+  BASE_PATH = "/"
+
+# ---------------------------------------------------------------------------
+# Proxy API calls to the Render service.
+# REPLACE the host below with your actual Render URL after the API is deployed,
+# e.g. https://customer-care-api.onrender.com
+# ---------------------------------------------------------------------------
+[[redirects]]
+  from = "/api/*"
+  to = "https://YOUR-RENDER-SERVICE.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+# SPA fallback: serve index.html for client-side routes (e.g. /admin/customer-care).
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

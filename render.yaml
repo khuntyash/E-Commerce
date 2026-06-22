@@ -1,0 +1,31 @@
+# Render Blueprint for the customer-care API (Express, Dockerized).
+# Create via: Render Dashboard -> New -> Blueprint -> point at this repo.
+#
+# Set these secret env vars in the Render dashboard (sync: false below):
+#   - DATABASE_URL                  (Neon connection string, include ?sslmode=require)
+#   - CUSTOMER_CARE_WEBHOOK_SECRET  (long random string; must match the cropper app)
+#   - ADMIN_API_TOKEN               (long random string; used to open the admin inbox)
+#
+# Render injects PORT automatically and the server binds it. On startup the
+# container runs `drizzle-kit push` (idempotent) before serving.
+
+services:
+  - type: web
+    name: customer-care-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile.api
+    dockerContext: .
+    # Starter ($7/mo) keeps the API always-on (no cold starts), so webhook
+    # submissions from the cropper are never delayed/dropped by a sleeping service.
+    plan: starter
+    healthCheckPath: /api/healthz
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: CUSTOMER_CARE_WEBHOOK_SECRET
+        sync: false
+      - key: ADMIN_API_TOKEN
+        sync: false

@@ -8,3 +8,94 @@
 export interface HealthStatus {
   status: string;
 }
+
+export interface ProblemDetails {
+  title: string;
+  detail?: string;
+  status?: number;
+}
+
+export interface CustomerCareWebhookPayload {
+  name?: string | null;
+  email?: string | null;
+  mobile?: string | null;
+  /**
+   * @minLength 1
+   * @maxLength 200
+   */
+  topic: string;
+  /**
+   * @minLength 1
+   * @maxLength 8000
+   */
+  message: string;
+  user_id?: number | null;
+  source?: string | null;
+  submitted_at?: string | null;
+}
+
+export type CustomerCareTicketStatus =
+  (typeof CustomerCareTicketStatus)[keyof typeof CustomerCareTicketStatus];
+
+export const CustomerCareTicketStatus = {
+  open: "open",
+  resolved: "resolved",
+} as const;
+
+export interface CustomerCareTicket {
+  id: number;
+  name?: string | null;
+  email?: string | null;
+  mobile?: string | null;
+  topic: string;
+  message: string;
+  sourceUserId?: number | null;
+  source: string;
+  status: CustomerCareTicketStatus;
+  submittedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt?: string | null;
+}
+
+export interface CustomerCareTicketList {
+  items: CustomerCareTicket[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export type CustomerCareStatusUpdateStatus =
+  (typeof CustomerCareStatusUpdateStatus)[keyof typeof CustomerCareStatusUpdateStatus];
+
+export const CustomerCareStatusUpdateStatus = {
+  open: "open",
+  resolved: "resolved",
+} as const;
+
+export interface CustomerCareStatusUpdate {
+  status: CustomerCareStatusUpdateStatus;
+}
+
+export type ListCustomerCareTicketsParams = {
+  status?: ListCustomerCareTicketsStatus;
+  q?: string;
+  /**
+   * @minimum 1
+   * @maximum 100
+   */
+  limit?: number;
+  /**
+   * @minimum 0
+   */
+  offset?: number;
+};
+
+export type ListCustomerCareTicketsStatus =
+  (typeof ListCustomerCareTicketsStatus)[keyof typeof ListCustomerCareTicketsStatus];
+
+export const ListCustomerCareTicketsStatus = {
+  open: "open",
+  resolved: "resolved",
+  all: "all",
+} as const;

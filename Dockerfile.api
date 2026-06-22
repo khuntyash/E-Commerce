@@ -1,0 +1,32 @@
+# syntax=docker/dockerfile:1
+
+# Build + run the Express API server for the monorepo.
+# Debian (glibc) base is required because pnpm-workspace.yaml excludes musl
+# platform binaries; do NOT switch to an alpine base.
+FROM node:24-slim AS build
+
+ENV PNPM_HOME=/pnpm
+ENV PATH=$PNPM_HOME:$PATH
+RUN corepack enable && corepack prepare pnpm@11.8.0 --activate
+
+WORKDIR /app
+
+# Install dependencies for the whole workspace (needed for workspace links and
+# for drizzle-kit at runtime migrations).
+COPY . .
+RUN pnpm install --frozen-lockfile
+
+# Build the API server bundle (esbuild) and the lib declaration outputs.
+RUN pnpm run typecheck:libs \
+  && pnpm --filter @workspace/api-server run build
+
+# Normalize potential CRLF line endings (Windows checkouts) and make executable.
+RUN sed -i 's/\r$//' /app/artifacts/api-server/docker-entrypoint.sh \
+  && chmod +x /app/artifacts/api-server/docker-entrypoint.sh
+
+ENV NODE_ENV=production
+# Default; override via compose/orchestrator.
+ENV PORT=5050
+EXPOSE 5050
+
+ENTRYPOINT ["/app/artifacts/api-server/docker-entrypoint.sh"]

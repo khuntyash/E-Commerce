@@ -1,0 +1,53 @@
+# Production stack: Postgres + API server + frontend (nginx).
+# Secrets are read from a local .env file (CUSTOMER_CARE_WEBHOOK_SECRET,
+# ADMIN_API_TOKEN, optionally POSTGRES_PASSWORD and WEB_PORT).
+#
+# Usage:
+#   docker compose up -d --build
+#   open http://localhost:8080  (admin inbox: /admin/customer-care)
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ecom
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ecom_pass}
+      POSTGRES_DB: ecommerce
+    volumes:
+      - ecom_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ecom -d ecommerce"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://ecom:${POSTGRES_PASSWORD:-ecom_pass}@postgres:5432/ecommerce
+      PORT: "5050"
+      NODE_ENV: production
+      CUSTOMER_CARE_WEBHOOK_SECRET: ${CUSTOMER_CARE_WEBHOOK_SECRET:?set CUSTOMER_CARE_WEBHOOK_SECRET in .env}
+      ADMIN_API_TOKEN: ${ADMIN_API_TOKEN:?set ADMIN_API_TOKEN in .env}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "5050"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      - api
+
+volumes:
+  ecom_pg_data:

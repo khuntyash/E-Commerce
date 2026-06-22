@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: customer-care
+    description: Customer care intake (webhook) and admin management
 paths:
   /healthz:
     get:
@@ -24,6 +26,130 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /webhooks/customer-care:
+    post:
+      operationId: receiveCustomerCareWebhook
+      tags: [customer-care]
+      summary: Receive a customer care submission from an external app
+      description: >
+        Public webhook endpoint called by trusted external applications.
+        Requests must include a valid `X-Webhook-Secret` header. The submission
+        is stored as a customer care ticket.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerCareWebhookPayload"
+      responses:
+        "201":
+          description: Ticket stored
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerCareTicket"
+        "400":
+          description: Invalid payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "401":
+          description: Missing or invalid webhook secret
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /admin/customer-care:
+    get:
+      operationId: listCustomerCareTickets
+      tags: [customer-care]
+      summary: List customer care tickets (admin)
+      description: >
+        Admin-only listing of customer care tickets. Requires a valid
+        `X-Admin-Token` header. Supports status filtering, free-text search and
+        pagination.
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [open, resolved, all]
+            default: all
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        "200":
+          description: A page of tickets
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerCareTicketList"
+        "401":
+          description: Missing or invalid admin token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /admin/customer-care/{id}/status:
+    patch:
+      operationId: updateCustomerCareTicketStatus
+      tags: [customer-care]
+      summary: Update a customer care ticket status (admin)
+      description: >
+        Admin-only. Mark a ticket as resolved or reopen it. Requires a valid
+        `X-Admin-Token` header.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerCareStatusUpdate"
+      responses:
+        "200":
+          description: Updated ticket
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerCareTicket"
+        "401":
+          description: Missing or invalid admin token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: Ticket not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
 components:
   schemas:
     HealthStatus:
@@ -31,6 +157,124 @@ components:
       properties:
         status:
           type: string
+      required:
+        - status
+    ProblemDetails:
+      type: object
+      properties:
+        title:
+          type: string
+        detail:
+          type: string
+        status:
+          type: integer
+      required:
+        - title
+    CustomerCareWebhookPayload:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        mobile:
+          type: string
+          nullable: true
+        topic:
+          type: string
+          minLength: 1
+          maxLength: 200
+        message:
+          type: string
+          minLength: 1
+          maxLength: 8000
+        user_id:
+          type: integer
+          nullable: true
+        source:
+          type: string
+          nullable: true
+        submitted_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - topic
+        - message
+    CustomerCareTicket:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        mobile:
+          type: string
+          nullable: true
+        topic:
+          type: string
+        message:
+          type: string
+        sourceUserId:
+          type: integer
+          nullable: true
+        source:
+          type: string
+        status:
+          type: string
+          enum: [open, resolved]
+        submittedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        resolvedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - topic
+        - message
+        - source
+        - status
+        - createdAt
+        - updatedAt
+    CustomerCareTicketList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CustomerCareTicket"
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+      required:
+        - items
+        - total
+        - limit
+        - offset
+    CustomerCareStatusUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [open, resolved]
       required:
         - status
 

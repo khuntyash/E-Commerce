@@ -5,18 +5,29 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
 
-import type { HealthStatus } from "./api.schemas";
+import type {
+  CustomerCareStatusUpdate,
+  CustomerCareTicket,
+  CustomerCareTicketList,
+  CustomerCareWebhookPayload,
+  HealthStatus,
+  ListCustomerCareTicketsParams,
+  ProblemDetails,
+} from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
-import type { ErrorType } from "../custom-fetch";
+import type { ErrorType, BodyType } from "../custom-fetch";
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -99,3 +110,291 @@ export function useHealthCheck<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * Public webhook endpoint called by trusted external applications. Requests must include a valid `X-Webhook-Secret` header. The submission is stored as a customer care ticket.
+
+ * @summary Receive a customer care submission from an external app
+ */
+export const getReceiveCustomerCareWebhookUrl = () => {
+  return `/api/webhooks/customer-care`;
+};
+
+export const receiveCustomerCareWebhook = async (
+  customerCareWebhookPayload: CustomerCareWebhookPayload,
+  options?: RequestInit,
+): Promise<CustomerCareTicket> => {
+  return customFetch<CustomerCareTicket>(getReceiveCustomerCareWebhookUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(customerCareWebhookPayload),
+  });
+};
+
+export const getReceiveCustomerCareWebhookMutationOptions = <
+  TError = ErrorType<ProblemDetails>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof receiveCustomerCareWebhook>>,
+    TError,
+    { data: BodyType<CustomerCareWebhookPayload> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof receiveCustomerCareWebhook>>,
+  TError,
+  { data: BodyType<CustomerCareWebhookPayload> },
+  TContext
+> => {
+  const mutationKey = ["receiveCustomerCareWebhook"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof receiveCustomerCareWebhook>>,
+    { data: BodyType<CustomerCareWebhookPayload> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return receiveCustomerCareWebhook(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ReceiveCustomerCareWebhookMutationResult = NonNullable<
+  Awaited<ReturnType<typeof receiveCustomerCareWebhook>>
+>;
+export type ReceiveCustomerCareWebhookMutationBody =
+  BodyType<CustomerCareWebhookPayload>;
+export type ReceiveCustomerCareWebhookMutationError = ErrorType<ProblemDetails>;
+
+/**
+ * @summary Receive a customer care submission from an external app
+ */
+export const useReceiveCustomerCareWebhook = <
+  TError = ErrorType<ProblemDetails>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof receiveCustomerCareWebhook>>,
+    TError,
+    { data: BodyType<CustomerCareWebhookPayload> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof receiveCustomerCareWebhook>>,
+  TError,
+  { data: BodyType<CustomerCareWebhookPayload> },
+  TContext
+> => {
+  return useMutation(getReceiveCustomerCareWebhookMutationOptions(options));
+};
+
+/**
+ * Admin-only listing of customer care tickets. Requires a valid `X-Admin-Token` header. Supports status filtering, free-text search and pagination.
+
+ * @summary List customer care tickets (admin)
+ */
+export const getListCustomerCareTicketsUrl = (
+  params?: ListCustomerCareTicketsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/admin/customer-care?${stringifiedParams}`
+    : `/api/admin/customer-care`;
+};
+
+export const listCustomerCareTickets = async (
+  params?: ListCustomerCareTicketsParams,
+  options?: RequestInit,
+): Promise<CustomerCareTicketList> => {
+  return customFetch<CustomerCareTicketList>(
+    getListCustomerCareTicketsUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getListCustomerCareTicketsQueryKey = (
+  params?: ListCustomerCareTicketsParams,
+) => {
+  return [`/api/admin/customer-care`, ...(params ? [params] : [])] as const;
+};
+
+export const getListCustomerCareTicketsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listCustomerCareTickets>>,
+  TError = ErrorType<ProblemDetails>,
+>(
+  params?: ListCustomerCareTicketsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listCustomerCareTickets>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListCustomerCareTicketsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listCustomerCareTickets>>
+  > = ({ signal }) =>
+    listCustomerCareTickets(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listCustomerCareTickets>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListCustomerCareTicketsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listCustomerCareTickets>>
+>;
+export type ListCustomerCareTicketsQueryError = ErrorType<ProblemDetails>;
+
+/**
+ * @summary List customer care tickets (admin)
+ */
+
+export function useListCustomerCareTickets<
+  TData = Awaited<ReturnType<typeof listCustomerCareTickets>>,
+  TError = ErrorType<ProblemDetails>,
+>(
+  params?: ListCustomerCareTicketsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listCustomerCareTickets>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListCustomerCareTicketsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Admin-only. Mark a ticket as resolved or reopen it. Requires a valid `X-Admin-Token` header.
+
+ * @summary Update a customer care ticket status (admin)
+ */
+export const getUpdateCustomerCareTicketStatusUrl = (id: number) => {
+  return `/api/admin/customer-care/${id}/status`;
+};
+
+export const updateCustomerCareTicketStatus = async (
+  id: number,
+  customerCareStatusUpdate: CustomerCareStatusUpdate,
+  options?: RequestInit,
+): Promise<CustomerCareTicket> => {
+  return customFetch<CustomerCareTicket>(
+    getUpdateCustomerCareTicketStatusUrl(id),
+    {
+      ...options,
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(customerCareStatusUpdate),
+    },
+  );
+};
+
+export const getUpdateCustomerCareTicketStatusMutationOptions = <
+  TError = ErrorType<ProblemDetails>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateCustomerCareTicketStatus>>,
+    TError,
+    { id: number; data: BodyType<CustomerCareStatusUpdate> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateCustomerCareTicketStatus>>,
+  TError,
+  { id: number; data: BodyType<CustomerCareStatusUpdate> },
+  TContext
+> => {
+  const mutationKey = ["updateCustomerCareTicketStatus"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateCustomerCareTicketStatus>>,
+    { id: number; data: BodyType<CustomerCareStatusUpdate> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateCustomerCareTicketStatus(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateCustomerCareTicketStatusMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateCustomerCareTicketStatus>>
+>;
+export type UpdateCustomerCareTicketStatusMutationBody =
+  BodyType<CustomerCareStatusUpdate>;
+export type UpdateCustomerCareTicketStatusMutationError =
+  ErrorType<ProblemDetails>;
+
+/**
+ * @summary Update a customer care ticket status (admin)
+ */
+export const useUpdateCustomerCareTicketStatus = <
+  TError = ErrorType<ProblemDetails>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateCustomerCareTicketStatus>>,
+    TError,
+    { id: number; data: BodyType<CustomerCareStatusUpdate> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateCustomerCareTicketStatus>>,
+  TError,
+  { id: number; data: BodyType<CustomerCareStatusUpdate> },
+  TContext
+> => {
+  return useMutation(getUpdateCustomerCareTicketStatusMutationOptions(options));
+};

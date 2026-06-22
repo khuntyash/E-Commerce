@@ -14,3 +14,104 @@ import * as zod from "zod";
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
+
+/**
+ * Public webhook endpoint called by trusted external applications. Requests must include a valid `X-Webhook-Secret` header. The submission is stored as a customer care ticket.
+
+ * @summary Receive a customer care submission from an external app
+ */
+export const receiveCustomerCareWebhookBodyTopicMax = 200;
+
+export const receiveCustomerCareWebhookBodyMessageMax = 8000;
+
+export const ReceiveCustomerCareWebhookBody = zod.object({
+  name: zod.string().nullish(),
+  email: zod.string().nullish(),
+  mobile: zod.string().nullish(),
+  topic: zod.string().min(1).max(receiveCustomerCareWebhookBodyTopicMax),
+  message: zod.string().min(1).max(receiveCustomerCareWebhookBodyMessageMax),
+  user_id: zod.number().nullish(),
+  source: zod.string().nullish(),
+  submitted_at: zod.coerce.date().nullish(),
+});
+
+/**
+ * Admin-only listing of customer care tickets. Requires a valid `X-Admin-Token` header. Supports status filtering, free-text search and pagination.
+
+ * @summary List customer care tickets (admin)
+ */
+export const listCustomerCareTicketsQueryStatusDefault = `all`;
+export const listCustomerCareTicketsQueryLimitDefault = 20;
+export const listCustomerCareTicketsQueryLimitMax = 100;
+
+export const listCustomerCareTicketsQueryOffsetDefault = 0;
+export const listCustomerCareTicketsQueryOffsetMin = 0;
+
+export const ListCustomerCareTicketsQueryParams = zod.object({
+  status: zod
+    .enum(["open", "resolved", "all"])
+    .default(listCustomerCareTicketsQueryStatusDefault),
+  q: zod.coerce.string().optional(),
+  limit: zod.coerce
+    .number()
+    .min(1)
+    .max(listCustomerCareTicketsQueryLimitMax)
+    .default(listCustomerCareTicketsQueryLimitDefault),
+  offset: zod.coerce
+    .number()
+    .min(listCustomerCareTicketsQueryOffsetMin)
+    .default(listCustomerCareTicketsQueryOffsetDefault),
+});
+
+export const ListCustomerCareTicketsResponse = zod.object({
+  items: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string().nullish(),
+      email: zod.string().nullish(),
+      mobile: zod.string().nullish(),
+      topic: zod.string(),
+      message: zod.string(),
+      sourceUserId: zod.number().nullish(),
+      source: zod.string(),
+      status: zod.enum(["open", "resolved"]),
+      submittedAt: zod.coerce.date().nullish(),
+      createdAt: zod.coerce.date(),
+      updatedAt: zod.coerce.date(),
+      resolvedAt: zod.coerce.date().nullish(),
+    }),
+  ),
+  total: zod.number(),
+  limit: zod.number(),
+  offset: zod.number(),
+});
+
+/**
+ * Admin-only. Mark a ticket as resolved or reopen it. Requires a valid `X-Admin-Token` header.
+
+ * @summary Update a customer care ticket status (admin)
+ */
+
+export const UpdateCustomerCareTicketStatusParams = zod.object({
+  id: zod.coerce.number().min(1),
+});
+
+export const UpdateCustomerCareTicketStatusBody = zod.object({
+  status: zod.enum(["open", "resolved"]),
+});
+
+export const UpdateCustomerCareTicketStatusResponse = zod.object({
+  id: zod.number(),
+  name: zod.string().nullish(),
+  email: zod.string().nullish(),
+  mobile: zod.string().nullish(),
+  topic: zod.string(),
+  message: zod.string(),
+  sourceUserId: zod.number().nullish(),
+  source: zod.string(),
+  status: zod.enum(["open", "resolved"]),
+  submittedAt: zod.coerce.date().nullish(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+  resolvedAt: zod.coerce.date().nullish(),
+});
