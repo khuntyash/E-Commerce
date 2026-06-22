@@ -87,6 +87,57 @@ export const ListCustomerCareTicketsResponse = zod.object({
 });
 
 /**
+ * Admin-only. Returns the ticket plus the full reply thread. Requires a valid `X-Admin-Token` header.
+
+ * @summary Get a single customer care ticket with its replies (admin)
+ */
+
+export const GetCustomerCareTicketParams = zod.object({
+  id: zod.coerce.number().min(1),
+});
+
+export const GetCustomerCareTicketResponse = zod.object({
+  id: zod.number(),
+  name: zod.string().nullish(),
+  email: zod.string().nullish(),
+  mobile: zod.string().nullish(),
+  topic: zod.string(),
+  message: zod.string(),
+  sourceUserId: zod.number().nullish(),
+  source: zod.string(),
+  status: zod.enum(["open", "resolved"]),
+  submittedAt: zod.coerce.date().nullish(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+  resolvedAt: zod.coerce.date().nullish(),
+  replies: zod.array(
+    zod.object({
+      id: zod.number(),
+      ticketId: zod.number(),
+      authorRole: zod.enum(["admin", "user"]),
+      body: zod.string(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+});
+
+/**
+ * Admin-only. Appends a reply to the ticket; the originating user will see it in the source app. Requires a valid `X-Admin-Token` header.
+
+ * @summary Add an admin reply to a ticket (admin)
+ */
+
+export const AddCustomerCareReplyParams = zod.object({
+  id: zod.coerce.number().min(1),
+});
+
+export const addCustomerCareReplyBodyBodyMax = 8000;
+
+export const AddCustomerCareReplyBody = zod.object({
+  body: zod.string().min(1).max(addCustomerCareReplyBodyBodyMax),
+});
+
+/**
  * Admin-only. Mark a ticket as resolved or reopen it. Requires a valid `X-Admin-Token` header.
 
  * @summary Update a customer care ticket status (admin)

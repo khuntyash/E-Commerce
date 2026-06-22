@@ -77,6 +77,55 @@ export interface CustomerCareStatusUpdate {
   status: CustomerCareStatusUpdateStatus;
 }
 
+export type CustomerCareReplyAuthorRole =
+  (typeof CustomerCareReplyAuthorRole)[keyof typeof CustomerCareReplyAuthorRole];
+
+export const CustomerCareReplyAuthorRole = {
+  admin: "admin",
+  user: "user",
+} as const;
+
+export interface CustomerCareReply {
+  id: number;
+  ticketId: number;
+  authorRole: CustomerCareReplyAuthorRole;
+  body: string;
+  createdAt: string;
+}
+
+export interface CustomerCareReplyCreate {
+  /**
+   * @minLength 1
+   * @maxLength 8000
+   */
+  body: string;
+}
+
+export type CustomerCareTicketDetailStatus =
+  (typeof CustomerCareTicketDetailStatus)[keyof typeof CustomerCareTicketDetailStatus];
+
+export const CustomerCareTicketDetailStatus = {
+  open: "open",
+  resolved: "resolved",
+} as const;
+
+export interface CustomerCareTicketDetail {
+  id: number;
+  name?: string | null;
+  email?: string | null;
+  mobile?: string | null;
+  topic: string;
+  message: string;
+  sourceUserId?: number | null;
+  source: string;
+  status: CustomerCareTicketDetailStatus;
+  submittedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt?: string | null;
+  replies: CustomerCareReply[];
+}
+
 export type ListCustomerCareTicketsParams = {
   status?: ListCustomerCareTicketsStatus;
   q?: string;

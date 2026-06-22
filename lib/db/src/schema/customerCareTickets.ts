@@ -31,6 +31,14 @@ export const customerCareTicketsTable = pgTable(
     status: text("status").notNull().default("open"),
     // When the user submitted it in the source app (optional).
     submittedAt: timestamp("submitted_at", { withTimezone: true }),
+    // When the originating user last viewed this thread (drives unread counts
+    // for replies shown back in the source app). Null = never viewed.
+    userLastSeenAt: timestamp("user_last_seen_at", { withTimezone: true }),
+    // When the user confirmed (in the source app) that a resolved ticket
+    // actually solved their query. Null = not yet confirmed.
+    userResolvedFeedbackAt: timestamp("user_resolved_feedback_at", {
+      withTimezone: true,
+    }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -59,3 +67,26 @@ export type InsertCustomerCareTicket = z.infer<
   typeof insertCustomerCareTicketSchema
 >;
 export type CustomerCareTicket = typeof customerCareTicketsTable.$inferSelect;
+
+/**
+ * Replies on a customer care ticket. Currently all replies are authored by an
+ * admin on the main website; the source app surfaces them back to the user.
+ */
+export const customerCareRepliesTable = pgTable(
+  "customer_care_replies",
+  {
+    id: serial("id").primaryKey(),
+    ticketId: integer("ticket_id")
+      .notNull()
+      .references(() => customerCareTicketsTable.id, { onDelete: "cascade" }),
+    // "admin" (from the main website) or "user" (reserved for future use).
+    authorRole: text("author_role").notNull().default("admin"),
+    body: text("body").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [index("customer_care_replies_ticket_idx").on(table.ticketId)],
+);
+
+export type CustomerCareReply = typeof customerCareRepliesTable.$inferSelect;

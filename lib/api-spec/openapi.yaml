@@ -110,6 +110,86 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProblemDetails"
+  /admin/customer-care/{id}:
+    get:
+      operationId: getCustomerCareTicket
+      tags: [customer-care]
+      summary: Get a single customer care ticket with its replies (admin)
+      description: >
+        Admin-only. Returns the ticket plus the full reply thread. Requires a
+        valid `X-Admin-Token` header.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Ticket with replies
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerCareTicketDetail"
+        "401":
+          description: Missing or invalid admin token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: Ticket not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /admin/customer-care/{id}/replies:
+    post:
+      operationId: addCustomerCareReply
+      tags: [customer-care]
+      summary: Add an admin reply to a ticket (admin)
+      description: >
+        Admin-only. Appends a reply to the ticket; the originating user will see
+        it in the source app. Requires a valid `X-Admin-Token` header.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerCareReplyCreate"
+      responses:
+        "201":
+          description: Reply created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerCareReply"
+        "400":
+          description: Invalid payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "401":
+          description: Missing or invalid admin token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: Ticket not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
   /admin/customer-care/{id}/status:
     patch:
       operationId: updateCustomerCareTicketStatus
@@ -277,4 +357,87 @@ components:
           enum: [open, resolved]
       required:
         - status
+    CustomerCareReply:
+      type: object
+      properties:
+        id:
+          type: integer
+        ticketId:
+          type: integer
+        authorRole:
+          type: string
+          enum: [admin, user]
+        body:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - ticketId
+        - authorRole
+        - body
+        - createdAt
+    CustomerCareReplyCreate:
+      type: object
+      properties:
+        body:
+          type: string
+          minLength: 1
+          maxLength: 8000
+      required:
+        - body
+    CustomerCareTicketDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        mobile:
+          type: string
+          nullable: true
+        topic:
+          type: string
+        message:
+          type: string
+        sourceUserId:
+          type: integer
+          nullable: true
+        source:
+          type: string
+        status:
+          type: string
+          enum: [open, resolved]
+        submittedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        resolvedAt:
+          type: string
+          format: date-time
+          nullable: true
+        replies:
+          type: array
+          items:
+            $ref: "#/components/schemas/CustomerCareReply"
+      required:
+        - id
+        - topic
+        - message
+        - source
+        - status
+        - createdAt
+        - updatedAt
+        - replies
 

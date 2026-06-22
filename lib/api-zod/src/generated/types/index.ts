@@ -6,9 +6,14 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./customerCareReply";
+export * from "./customerCareReplyAuthorRole";
+export * from "./customerCareReplyCreate";
 export * from "./customerCareStatusUpdate";
 export * from "./customerCareStatusUpdateStatus";
 export * from "./customerCareTicket";
+export * from "./customerCareTicketDetail";
+export * from "./customerCareTicketDetailStatus";
 export * from "./customerCareTicketList";
 export * from "./customerCareTicketStatus";
 export * from "./customerCareWebhookPayload";

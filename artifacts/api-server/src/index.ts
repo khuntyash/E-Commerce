@@ -1,5 +1,6 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { startCustomerCareMaintenance } from "./lib/customerCareMaintenance";
 
 const rawPort = process.env["PORT"];
 
@@ -22,4 +23,8 @@ app.listen(port, (err) => {
   }
 
   logger.info({ port }, "Server listening");
+
+  // Background lifecycle sweep: auto-confirm resolved tickets after 48h and
+  // delete tickets 30 days after they were resolved.
+  startCustomerCareMaintenance();
 });

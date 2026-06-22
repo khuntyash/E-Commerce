@@ -3,8 +3,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   useListCustomerCareTickets,
   useUpdateCustomerCareTicketStatus,
+  useGetCustomerCareTicket,
+  useAddCustomerCareReply,
   getListCustomerCareTicketsQueryKey,
+  getGetCustomerCareTicketQueryKey,
   type CustomerCareTicket,
+  type CustomerCareReply,
 } from "@workspace/api-client-react";
 import {
   Card,
@@ -39,6 +43,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 const TOKEN_STORAGE_KEY = "cc_admin_token";
 const PAGE_SIZE = 20;
@@ -127,28 +132,28 @@ export default function CustomerCareInbox() {
     {
       request: requestOptions,
       query: {
-        queryKey: getListCustomerCareTicketsQueryKey(params),
+        // Include token in the key so a corrected token triggers a fresh fetch
+        // instead of reusing a cached 401 from a previous attempt.
+        queryKey: [...getListCustomerCareTicketsQueryKey(params), token],
         enabled: Boolean(token),
         retry: false,
       },
     },
   );
 
-  const updateStatus = useUpdateCustomerCareTicketStatus({
-    request: requestOptions,
-    mutation: {
-      onSuccess: (updated) => {
-        setSelected(updated);
-        queryClient.invalidateQueries({
-          queryKey: getListCustomerCareTicketsQueryKey().slice(0, 1),
-        });
-      },
-    },
-  });
+  function invalidateList() {
+    void queryClient.invalidateQueries({
+      queryKey: getListCustomerCareTicketsQueryKey().slice(0, 1),
+    });
+  }
 
   function saveToken(t: string) {
-    localStorage.setItem(TOKEN_STORAGE_KEY, t);
-    setToken(t);
+    const clean = t.trim();
+    localStorage.setItem(TOKEN_STORAGE_KEY, clean);
+    setToken(clean);
+    void queryClient.removeQueries({
+      queryKey: getListCustomerCareTicketsQueryKey().slice(0, 1),
+    });
   }
 
   function signOut() {
@@ -324,88 +329,207 @@ export default function CustomerCareInbox() {
         </CardContent>
       </Card>
 
-      <Dialog
-        open={Boolean(selected)}
-        onOpenChange={(open) => {
-          if (!open) setSelected(null);
-        }}
-      >
-        <DialogContent className="max-w-lg">
-          {selected && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  {selected.topic}
-                  <StatusBadge status={selected.status} />
-                </DialogTitle>
-                <DialogDescription>
-                  Ticket #{selected.id} · {selected.source}
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="space-y-3 text-sm">
-                <div className="grid grid-cols-3 gap-2">
-                  <span className="text-muted-foreground">Name</span>
-                  <span className="col-span-2">{selected.name || "—"}</span>
-                  <span className="text-muted-foreground">Email</span>
-                  <span className="col-span-2 break-all">
-                    {selected.email || "—"}
-                  </span>
-                  <span className="text-muted-foreground">Mobile</span>
-                  <span className="col-span-2">{selected.mobile || "—"}</span>
-                  <span className="text-muted-foreground">User ID</span>
-                  <span className="col-span-2">
-                    {selected.sourceUserId ?? "—"}
-                  </span>
-                  <span className="text-muted-foreground">Submitted</span>
-                  <span className="col-span-2">
-                    {formatDate(selected.submittedAt)}
-                  </span>
-                  <span className="text-muted-foreground">Received</span>
-                  <span className="col-span-2">
-                    {formatDate(selected.createdAt)}
-                  </span>
-                </div>
-                <div>
-                  <div className="mb-1 text-muted-foreground">Message</div>
-                  <div className="whitespace-pre-wrap rounded-md border bg-muted/30 p-3">
-                    {selected.message}
-                  </div>
-                </div>
-              </div>
-
-              <DialogFooter>
-                {selected.status === "resolved" ? (
-                  <Button
-                    variant="outline"
-                    disabled={updateStatus.isPending}
-                    onClick={() =>
-                      updateStatus.mutate({
-                        id: selected.id,
-                        data: { status: "open" },
-                      })
-                    }
-                  >
-                    Reopen
-                  </Button>
-                ) : (
-                  <Button
-                    disabled={updateStatus.isPending}
-                    onClick={() =>
-                      updateStatus.mutate({
-                        id: selected.id,
-                        data: { status: "resolved" },
-                      })
-                    }
-                  >
-                    Mark as resolved
-                  </Button>
-                )}
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+      {selected && (
+        <TicketDialog
+          ticket={selected}
+          token={token}
+          onClose={() => setSelected(null)}
+          onChanged={invalidateList}
+        />
+      )}
     </div>
+  );
+}
+
+function ReplyBubble({ reply }: { reply: CustomerCareReply }) {
+  const isAdmin = reply.authorRole === "admin";
+  return (
+    <div className={isAdmin ? "flex justify-end" : "flex justify-start"}>
+      <div
+        className={
+          "max-w-[80%] rounded-lg px-3 py-2 text-sm " +
+          (isAdmin
+            ? "bg-primary text-primary-foreground"
+            : "border bg-muted/30")
+        }
+      >
+        <div className="mb-1 text-[11px] opacity-70">
+          {isAdmin ? "Support" : "User"} · {formatDate(reply.createdAt)}
+        </div>
+        <div className="whitespace-pre-wrap">{reply.body}</div>
+      </div>
+    </div>
+  );
+}
+
+function TicketDialog({
+  ticket,
+  token,
+  onClose,
+  onChanged,
+}: {
+  ticket: CustomerCareTicket;
+  token: string;
+  onClose: () => void;
+  onChanged: () => void;
+}) {
+  const [replyText, setReplyText] = useState("");
+  const requestOptions = useMemo(
+    () => ({ headers: { "X-Admin-Token": token } }),
+    [token],
+  );
+
+  const detailQuery = useGetCustomerCareTicket(ticket.id, {
+    request: requestOptions,
+    query: {
+      queryKey: [...getGetCustomerCareTicketQueryKey(ticket.id), token],
+      retry: false,
+    },
+  });
+
+  const addReply = useAddCustomerCareReply({
+    request: requestOptions,
+    mutation: {
+      onSuccess: () => {
+        setReplyText("");
+        void detailQuery.refetch();
+        onChanged();
+      },
+    },
+  });
+
+  const updateStatus = useUpdateCustomerCareTicketStatus({
+    request: requestOptions,
+    mutation: {
+      onSuccess: () => {
+        void detailQuery.refetch();
+        onChanged();
+      },
+    },
+  });
+
+  const detail = detailQuery.data;
+  const status = detail?.status ?? ticket.status;
+  const replies = detail?.replies ?? [];
+
+  function sendReply() {
+    const body = replyText.trim();
+    if (!body) return;
+    addReply.mutate({ id: ticket.id, data: { body } });
+  }
+
+  return (
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <DialogContent className="flex max-h-[85vh] max-w-lg flex-col">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            {ticket.topic}
+            <StatusBadge status={status} />
+          </DialogTitle>
+          <DialogDescription>
+            Ticket #{ticket.id} · {ticket.source}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1 text-sm">
+          <div className="grid grid-cols-3 gap-2">
+            <span className="text-muted-foreground">Name</span>
+            <span className="col-span-2">{ticket.name || "—"}</span>
+            <span className="text-muted-foreground">Email</span>
+            <span className="col-span-2 break-all">{ticket.email || "—"}</span>
+            <span className="text-muted-foreground">Mobile</span>
+            <span className="col-span-2">{ticket.mobile || "—"}</span>
+            <span className="text-muted-foreground">User ID</span>
+            <span className="col-span-2">{ticket.sourceUserId ?? "—"}</span>
+            <span className="text-muted-foreground">Submitted</span>
+            <span className="col-span-2">{formatDate(ticket.submittedAt)}</span>
+          </div>
+
+          <div>
+            <div className="mb-1 text-muted-foreground">Message</div>
+            <div className="whitespace-pre-wrap rounded-md border bg-muted/30 p-3">
+              {ticket.message}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-muted-foreground">
+              Conversation {replies.length > 0 ? `(${replies.length})` : ""}
+            </div>
+            {detailQuery.isLoading ? (
+              <p className="text-xs text-muted-foreground">Loading replies…</p>
+            ) : replies.length === 0 ? (
+              <p className="text-xs text-muted-foreground">
+                No replies yet. Your reply will be shown to the user in their
+                app.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {replies.map((r) => (
+                  <ReplyBubble key={r.id} reply={r} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-2 border-t pt-3">
+          <Textarea
+            placeholder="Write a reply to the user…"
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+            rows={3}
+            onKeyDown={(e) => {
+              if ((e.metaKey || e.ctrlKey) && e.key === "Enter") sendReply();
+            }}
+          />
+          {addReply.isError && (
+            <p className="text-xs text-destructive">
+              Could not send the reply. Please try again.
+            </p>
+          )}
+          <DialogFooter className="gap-2 sm:justify-between">
+            {status === "resolved" ? (
+              <Button
+                variant="outline"
+                disabled={updateStatus.isPending}
+                onClick={() =>
+                  updateStatus.mutate({
+                    id: ticket.id,
+                    data: { status: "open" },
+                  })
+                }
+              >
+                Reopen
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                disabled={updateStatus.isPending}
+                onClick={() =>
+                  updateStatus.mutate({
+                    id: ticket.id,
+                    data: { status: "resolved" },
+                  })
+                }
+              >
+                Mark as resolved
+              </Button>
+            )}
+            <Button
+              disabled={addReply.isPending || !replyText.trim()}
+              onClick={sendReply}
+            >
+              {addReply.isPending ? "Sending…" : "Send reply"}
+            </Button>
+          </DialogFooter>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

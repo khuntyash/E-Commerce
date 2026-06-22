@@ -17,8 +17,11 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  CustomerCareReply,
+  CustomerCareReplyCreate,
   CustomerCareStatusUpdate,
   CustomerCareTicket,
+  CustomerCareTicketDetail,
   CustomerCareTicketList,
   CustomerCareWebhookPayload,
   HealthStatus,
@@ -304,6 +307,189 @@ export function useListCustomerCareTickets<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * Admin-only. Returns the ticket plus the full reply thread. Requires a valid `X-Admin-Token` header.
+
+ * @summary Get a single customer care ticket with its replies (admin)
+ */
+export const getGetCustomerCareTicketUrl = (id: number) => {
+  return `/api/admin/customer-care/${id}`;
+};
+
+export const getCustomerCareTicket = async (
+  id: number,
+  options?: RequestInit,
+): Promise<CustomerCareTicketDetail> => {
+  return customFetch<CustomerCareTicketDetail>(
+    getGetCustomerCareTicketUrl(id),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetCustomerCareTicketQueryKey = (id: number) => {
+  return [`/api/admin/customer-care/${id}`] as const;
+};
+
+export const getGetCustomerCareTicketQueryOptions = <
+  TData = Awaited<ReturnType<typeof getCustomerCareTicket>>,
+  TError = ErrorType<ProblemDetails>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getCustomerCareTicket>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetCustomerCareTicketQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getCustomerCareTicket>>
+  > = ({ signal }) => getCustomerCareTicket(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getCustomerCareTicket>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetCustomerCareTicketQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getCustomerCareTicket>>
+>;
+export type GetCustomerCareTicketQueryError = ErrorType<ProblemDetails>;
+
+/**
+ * @summary Get a single customer care ticket with its replies (admin)
+ */
+
+export function useGetCustomerCareTicket<
+  TData = Awaited<ReturnType<typeof getCustomerCareTicket>>,
+  TError = ErrorType<ProblemDetails>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getCustomerCareTicket>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetCustomerCareTicketQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Admin-only. Appends a reply to the ticket; the originating user will see it in the source app. Requires a valid `X-Admin-Token` header.
+
+ * @summary Add an admin reply to a ticket (admin)
+ */
+export const getAddCustomerCareReplyUrl = (id: number) => {
+  return `/api/admin/customer-care/${id}/replies`;
+};
+
+export const addCustomerCareReply = async (
+  id: number,
+  customerCareReplyCreate: CustomerCareReplyCreate,
+  options?: RequestInit,
+): Promise<CustomerCareReply> => {
+  return customFetch<CustomerCareReply>(getAddCustomerCareReplyUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(customerCareReplyCreate),
+  });
+};
+
+export const getAddCustomerCareReplyMutationOptions = <
+  TError = ErrorType<ProblemDetails>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof addCustomerCareReply>>,
+    TError,
+    { id: number; data: BodyType<CustomerCareReplyCreate> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof addCustomerCareReply>>,
+  TError,
+  { id: number; data: BodyType<CustomerCareReplyCreate> },
+  TContext
+> => {
+  const mutationKey = ["addCustomerCareReply"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof addCustomerCareReply>>,
+    { id: number; data: BodyType<CustomerCareReplyCreate> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return addCustomerCareReply(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AddCustomerCareReplyMutationResult = NonNullable<
+  Awaited<ReturnType<typeof addCustomerCareReply>>
+>;
+export type AddCustomerCareReplyMutationBody =
+  BodyType<CustomerCareReplyCreate>;
+export type AddCustomerCareReplyMutationError = ErrorType<ProblemDetails>;
+
+/**
+ * @summary Add an admin reply to a ticket (admin)
+ */
+export const useAddCustomerCareReply = <
+  TError = ErrorType<ProblemDetails>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof addCustomerCareReply>>,
+    TError,
+    { id: number; data: BodyType<CustomerCareReplyCreate> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof addCustomerCareReply>>,
+  TError,
+  { id: number; data: BodyType<CustomerCareReplyCreate> },
+  TContext
+> => {
+  return useMutation(getAddCustomerCareReplyMutationOptions(options));
+};
 
 /**
  * Admin-only. Mark a ticket as resolved or reopen it. Requires a valid `X-Admin-Token` header.
